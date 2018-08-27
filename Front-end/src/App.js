@@ -94,8 +94,7 @@ console.log(result)
           </div>
           <button>Get balance!</button>
         </form>
-        <hr />
-        <h1>{this.state.message}</h1>
+        
         <hr />
          <form onSubmit={this.transfer}>
           <h4>Transfer token to an address</h4>
@@ -169,6 +168,9 @@ console.log(result)
          <button>sell Tokens</button>
        </form>
        <hr />
+        <h1> Transaction status : {this.state.message}</h1>
+        <hr />
+
       </div>
     );
   }
