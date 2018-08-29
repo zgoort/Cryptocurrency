@@ -1,17 +1,28 @@
-// your code here
-
+const HDWalletProvider = require('truffle-hdwallet-provider'); //It can be uses wherever a Web3 provider is needed, not just in Truffle. It will sign transactions for addresses derived from a 12-word mnemonic.
 const Web3 = require('web3');
 const { interface, bytecode } = require('./compile');
 
-const provider  // your code here 
-const web3  // your code here
+// creating an instance from the provider and passing the metamask 12-words mnemonic, and the link from Infura that you get
+// after creating an account in Infura, and create Rinkeby as the end point.
+const provider = new HDWalletProvider(  
+  'Your 12-words mnemonic here',
+  'https://rinkeby.infura.io/yourApiKeyHere'
+);
+
+
+const web3 = new Web3(provider);  //create a web3 instance using the provider instantiated above.
+let contractAddress;
 
 const deploy = async () => {
   const accounts = await web3.eth.getAccounts();
 
-  console.log('Attempting to deploy from account', accounts[0]); // address of the deployer
+  console.log('Attempting to deploy from account', accounts[0]);
 
-  const result = // your code here
-  console.log('Contract deployed to', result.options.address); //address of the deployed contract
+  const result = await new web3.eth.Contract(JSON.parse(interface))    
+    .deploy({ data: "0x"+ bytecode, arguments: [1000, 'BCCoin', 0, 'BC' , 100] }) // Passing the bytecode as hexadecimal and the arguments of the constructor 
+    .send({ gas: '1000000', from: accounts[0] });
+  contractAddress = result.options.address;
+  console.log('Contract deployed to', contractAddress);
 };
+
 deploy();
