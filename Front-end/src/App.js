@@ -11,7 +11,7 @@ class App extends Component {
     address: '',
     addressFrom: ''
   };
-  componentDidMount() async {
+ async componentDidMount()  {
     const owner =  await token.methods.Owner().call(); //The address of the deployer which is the the address of the account you're using on metmask.Its for a better front end.
     
     this.setState({ owner });
