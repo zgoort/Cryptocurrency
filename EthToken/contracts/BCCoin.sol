@@ -4,70 +4,84 @@ import 'Interface.sol';
 
 contract BCCoin is Interface {
 
-    uint256 constant private MAX_UINT256 = 2**256 - 1;
-    
-    // declare balances variable here
-    mapping (address => uint256) public balances;
+   uint256 constant private MAX_UINT256 = 2**256 - 1;
 
-    mapping (address => mapping (address => uint256)) public allowed;
-   
-    string public name;                   //fancy name: eg Simon Bucks
-    uint8 public decimals;                //How many decimals to show.
-    string public symbol;                 //An identifier: eg SBX
-    uint8 public tokenValue;              //token value in ethers
-    address public Owner;                 //address account who deplyed the contract       
+   // declare balances variable here
+   mapping (address => uint256) public balances;
 
-    constructor (
-        uint256 _initialAmount,
-        string _tokenName,
-        uint8 _decimalUnits,
-        string _tokenSymbol,
-        uint8 _tokenValue
-    ) public {
-        Owner = msg.sender;
-        
-        // your code here
-        balances[Owner]= _initialAmount;
-        name=_tokenName;
-        decimals = _decimalUnits;
-        symbol =_tokenSymbol;
-        tokenValue = _tokenValue;
-    }
+   mapping (address => mapping (address => uint256)) public allowed;
 
-    function  getBalance() view public returns(uint256){
-        return msg.sender.balance;
-    }
+   string public name;                   //fancy name: eg Simon Bucks
+   uint8 public decimals;                //How many decimals to show.
+   string public symbol;                 //An identifier: eg SBX
+   uint8 public tokenValue;              //token value in ethers
+   address public Owner;                 //address account who deplyed the contract
 
-    function  getTokens() public payable{
-        balances[msg.sender] = balances[msg.sender] + msg.value/tokenValue;
-        balances[Owner] = balances[Owner] - msg.value; 
-        }
+   constructor (
+       uint256 _initialAmount,
+       string _tokenName,
+       uint8 _decimalUnits,
+       string _tokenSymbol,
+       uint8 _tokenValue
+   ) public {
+       Owner = msg.sender;
 
-   function  getEthers(uint256 token) public {
-        balances[msg.sender] = balances[msg.sender] - token;
-        msg.sender.transfer(token*tokenValue);
-        }
+       // your code here
+       balances[Owner]= _initialAmount;
+       name=_tokenName;
+       decimals = _decimalUnits;
+       symbol =_tokenSymbol;
+       tokenValue = _tokenValue;
+   }
 
-    function transfer(address _to, uint256 _value) public  {
-        require(_to != address(0));
-        require(_value <= balances[Owner]);
-        balances[msg.sender] = balances[Owner] - _value;
-        balances[_to] =  balances[_to] + _value; 
-    }
+   function  getBalance() view public returns(uint256){
+       return msg.sender.balance;
+   }
 
-    function transferFrom(address _from, address _to, uint256 _value) public  {
-        uint256 allowance = allowed[_from][msg.sender];
-        // your code here
-        balances[_from] = balances[_from] - _value;//SafeMath.sub(balances[msg.sender], _value);
-        balances[_to] =  balances[_to] + _value; //SafeMath.add(balances[_to], _value);
-        if (allowance < MAX_UINT256) {
-            allowed[_from][msg.sender] -= _value;
-        }
-    }    
-   
-    function approve(address _spender, uint256 _value) public  {
-       // your code here 
-       allowed[msg.sender][_spender] = _value;
-    }
- 
+   function  getTokens() public payable{
+       balances[msg.sender] = balances[msg.sender] + msg.value/tokenValue;
+       balances[Owner] = balances[Owner] - msg.value;
+       }
+
+  function  getEthers(uint256 token) public {
+       balances[msg.sender] = balances[msg.sender] - token;
+       msg.sender.transfer(token*tokenValue);
+       }
+
+   function transfer(address _to, uint256 _value) public  returns(bool success){
+       require(_to != address(0));
+       require(_value <= balances[Owner]);
+       balances[msg.sender] = balances[Owner] - _value;
+       balances[_to] =  balances[_to] + _value;
+       emit Transfer(msg.sender, _to,_value);
+       return true;
+   }
+
+   function balanceOf(address _owner) public view returns (uint256 balance) {
+      return balances[_owner];
+   }
+
+   function transferFrom(address _from, address _to, uint256 _value) public  returns(bool success){
+       uint256 allowance = allowed[_from][msg.sender];
+       // your code here
+       balances[_from] = balances[_from] - _value;//SafeMath.sub(balances[msg.sender], _value);
+       balances[_to] =  balances[_to] + _value; //SafeMath.add(balances[_to], _value);
+       if (allowance < MAX_UINT256) {
+           allowed[_from][msg.sender] -= _value;
+       }
+               emit Transfer(_from,_to,_value);
+
+   }
+
+   function allowance(address _owner, address _spender) public view returns (uint256 remaining) {
+      return allowed[_owner][_spender];
+   }
+
+   function approve(address _spender, uint256 _value) public returns(bool success) {
+      // your code here
+      allowed[msg.sender][_spender] = _value;
+      emit Approval(msg.sender, _spender,_value);
+      return true;
+   }
+
 }
