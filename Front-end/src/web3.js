@@ -1,6 +1,5 @@
 import Web3 from 'web3';
 
-// create an instanse of Web3 using the right provider version
-const web3 =  // your code here;
+const web3 =  new Web3(window.web3.currentProvider);
 
 export default web3;

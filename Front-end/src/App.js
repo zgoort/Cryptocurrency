@@ -11,54 +11,71 @@ class App extends Component {
     address: '',
     addressFrom: ''
   };
-  componentDidMount() {
-    const owner =  "FILL_ME_IN";        // change this line with your current address;
+  async componentDidMount()  {
+    const owner =  await token.methods.Owner().call(); //The address of the deployer which is the the address of the account you're using on metmask.Its for a better front end.
     
     this.setState({ owner });
   }
-
+//In all functions you need to get the accounts so that account[0] will point to the current account you're using on metamask, also notice when you should use .call and .send. 
+//*Note: if you use .call there is no need for the from key . Try it. 
   getTokens = async event => {
     event.preventDefault();
-    const accounts = await // your code here;
+    const accounts = await web3.eth.getAccounts();
     this.setState({ message: 'Waiting on transaction success...' });
-    await // your code here;
+    await token.methods.getTokens().send({
+      from: accounts[0],
+      value: web3.utils.toWei(this.state.value, 'ether')
+    });
     this.setState({ message: 'You got your tokens!' });
   };
-  tokenBalance = async event => { 
+  getBalance = async event => { 
     event.preventDefault();
-    const accounts = await // your code here;
+    const accounts = await web3.eth.getAccounts();
     console.log(typeof accounts[0],  accounts[0]);
     this.setState({ message: 'Waiting on transaction success...' });
-    let result = await // your code here;
+    let result = await token.methods.balances(this.state.address).call({
+      from: accounts[0]
+    });
 console.log(result)
     this.setState({ message: result });
   };
   transfer = async event => {
     event.preventDefault();
-    const accounts = await // your code here;
+    const accounts = await web3.eth.getAccounts();
     this.setState({ message: 'Waiting on transaction success...' });
-     await // your code here;
+     await token.methods.transfer(this.state.address,this.state.value).send({
+      from: accounts[0]
+    });
+
     this.setState({ message: "transaction has been entered" });
   };
   transferFrom = async event => {
     event.preventDefault();
-    const accounts = await // your code here;
+    const accounts = await web3.eth.getAccounts();
     this.setState({ message: 'Waiting on transaction success...' });
-     await // your code here;
+     await token.methods.transferFrom(this.state.addressFrom, this.state.address,this.state.value).send({
+      from: accounts[0]
+    });
+
     this.setState({ message: "transaction has been entered" });
   };
   approve = async event => {
     event.preventDefault();
-    const accounts = await // your code here;
+    const accounts = await web3.eth.getAccounts();
     this.setState({ message: 'Waiting on transaction success...' });
-     await // your code here;
+     await token.methods.approve(this.state.address,this.state.value).send({
+      from: accounts[0]
+    });
+
     this.setState({ message: "transaction has been entered" });
   };
   getEthers= async event => {
    event.preventDefault();
-   const accounts = await // your code here;
+   const accounts = await web3.eth.getAccounts();
    this.setState({ message: 'Waiting on transaction success...' });
-   await // your code here;
+   await token.methods.getEthers(this.state.value).send({
+     from: accounts[0]
+   });
    this.setState({ message: 'You sold your tokens!' });
   };
 
@@ -82,7 +99,7 @@ console.log(result)
           <button>getTokens</button>
         </form>
         <hr />
-         <form onSubmit={this.tokenBalance}>
+         <form onSubmit={this.getBalance}>
           <h4>View your balance of Tokens</h4>
           <div>
             <label>Enter the address</label>
@@ -93,7 +110,8 @@ console.log(result)
           </div>
           <button>Get balance!</button>
         </form>
-        
+        <hr />
+        <h1>{this.state.message}</h1>
         <hr />
          <form onSubmit={this.transfer}>
           <h4>Transfer token to an address</h4>
@@ -155,7 +173,7 @@ console.log(result)
           <button>Set allowance!</button>
         </form>
         <hr />
-        <form getEthers={this.getEthers}>
+        <form onSubmit={this.getEthers}>
          <h4>Sell Tokens</h4>
          <div>
            <label>Amount of tokens to sell</label>
@@ -167,9 +185,6 @@ console.log(result)
          <button>sell Tokens</button>
        </form>
        <hr />
-        <h1> Transaction status : {this.state.message}</h1>
-        <hr />
-
       </div>
     );
   }
